@@ -50,25 +50,35 @@ export async function createCustomer(req, res, next) {
 
 // Update a customer
 export async function updateCustomer(req, res) {
-  const updated = await prisma.customer.update({
-    where: {
-      id: req.params.id,
-    },
-    data: {
-      name: req.body.name,
-    },
-  });
+  try {
+    const updated = await prisma.customer.update({
+      where: {
+        id: req.params.id,
+      },
+      data: {
+        name: req.body.name,
+      },
+    });
 
-  res.json({ data: updated });
+    res.json({ data: updated });
+  } catch (e) {
+    res.status(500);
+    res.json({ message: 'Oops... something went wrong there.' });
+  }
 }
 
 // Delete a customer
 export async function deleteCustomer(req, res) {
-  const deleted = await prisma.customer.delete({
-    where: {
-      id: req.params.id,
-    },
-  });
+  try {
+    const deleted = await prisma.customer.delete({
+      where: {
+        id: req.params.id,
+      },
+    });
 
-  res.json({ data: deleted });
+    res.json({ data: deleted });
+  } catch (e) {
+    res.status(500);
+    res.json({ message: 'Oops... something went wrong.' });
+  }
 }
