@@ -2,42 +2,42 @@ import { Router } from 'express';
 import { body, validationResult, oneOf } from 'express-validator';
 import { handleInputErrors } from './modules/middleware';
 import {
-  getProducts,
-  createProduct,
-  getProduct,
-  deleteProduct,
-} from './handlers/product';
+  getCustomers,
+  createCustomer,
+  getOneCustomer,
+  deleteCustomer,
+} from './handlers/customer';
 
 const router = Router();
 
 /**
- * PRODUCTS
+ * CUSTOMER ROUTES
  */
 
-// gets / reads all products
-router.get('/product', getProducts);
+// gets / reads all customer
+router.get('/customer', getCustomers);
 
-// gets / reads a single product
-router.get('/product/:id', getProduct);
+// gets / reads a single customer
+router.get('/customer/:id', getOneCustomer);
 
-// updates a product
+// updates a customer
 router.put(
-  '/product/:id',
+  '/customer/:id',
   body('name').isString(),
   handleInputErrors,
   (req, res) => {}
 );
 
-// creates a product
+// creates a customer
 router.post(
-  '/product',
+  '/customer',
   body('name').isString(),
   handleInputErrors,
-  createProduct
+  createCustomer
 );
 
-// deletes a product
-router.delete('/product:id', deleteProduct);
+// deletes a customer
+router.delete('/customer:id', deleteCustomer);
 
 router.use((err, req, res, next) => {
   console.log(err);

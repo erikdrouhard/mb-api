@@ -13,23 +13,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model DbUser {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
-
-  username     String  @unique
-  email        String  @unique
-  resellerId   String  @unique
-  pledgeAmount String? //optional
+  username  String   @unique
+  password  String
 }
 
-// No longer need this model
-// model Product {
-//   id          String         @id @default(uuid())
-//   createdAt   DateTime       @default(now())
-//   name        String         @db.VarChar(255)
-//   status      LICENSE_STATUS @default(ACTIVE)
-//   belongsToId String
-
-//   @@unique([id, belongsToId])
-// }
+model Customer {
+  id              String   @id @default(uuid())
+  createdAt       DateTime @default(now())
+  licenseDuration Int      @default(2) // 2 years
+  name            String
+  email           String   @unique
+  resellerId      String   @unique
+  pledgeAmount    String? //optional
+}
