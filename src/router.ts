@@ -18,7 +18,7 @@ const router = Router();
 router.get('/customer', getCustomers);
 
 // gets / reads a single customer
-router.get('/customer/:id', getOneCustomer);
+router.get('/customer/:resellerId', getOneCustomer);
 
 // updates a customer
 router.put(

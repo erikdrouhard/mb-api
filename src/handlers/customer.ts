@@ -2,26 +2,33 @@ import prisma from '../db';
 
 // Gets all customers
 export async function getCustomers(req, res) {
-  const customer = await prisma.customer.findMany({
-    where: {
-      id: req.customer.id,
-    },
-  });
+  try {
+    const customer = await prisma.customer.findMany();
 
-  res.json({ data: customer });
+    res.json({ data: customer });
+  } catch (e) {
+    console.log(e);
+    res.status(500);
+    res.json({ message: 'Oops...something went wrong' });
+  }
 }
 
 // Get one customer
 export async function getOneCustomer(req, res) {
-  const id = req.params.id;
-  const customer = await prisma.customer.findFirst({
-    where: {
-      id,
-      resellerId: req.customer.resellerId,
-    },
-  });
+  try {
+    const id = req.params.id;
+    const customer = await prisma.customer.findFirst({
+      where: {
+        id,
+        resellerId: req.params.resellerId,
+      },
+    });
 
-  res.json({ data: customer });
+    res.json({ data: customer });
+  } catch (e) {
+    res.status(500);
+    res.json({ message: 'Customer not found.' });
+  }
 }
 
 // Create a customer
