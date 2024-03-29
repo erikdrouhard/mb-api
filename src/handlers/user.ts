@@ -4,7 +4,7 @@ import { createJWT, comparePasswords, hashPassword } from '../modules/auth';
 //database queries are async
 export const createNewUser = async (req, res, next) => {
   try {
-    const user = await prisma.dbUser.create({
+    const user = await prisma.user.create({
       data: {
         username: req.body.username,
         password: await hashPassword(req.body.password),
@@ -19,7 +19,7 @@ export const createNewUser = async (req, res, next) => {
 };
 
 export const signInUser = async (req, res) => {
-  const user = await prisma.dbUser.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       username: req.body.username,
     },

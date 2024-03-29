@@ -2,44 +2,49 @@ import { Router } from 'express';
 import { body, validationResult, oneOf } from 'express-validator';
 import { handleInputErrors } from './modules/middleware';
 import {
-  getCustomers,
-  createCustomer,
-  getOneCustomer,
-  deleteCustomer,
-  updateCustomer,
-} from './handlers/customer';
+  getResellers,
+  createReseller,
+  getOneReseller,
+  deleteReseller,
+  updateReseller,
+} from './handlers/reseller';
 
 const router = Router();
 
 /**
- * CUSTOMER ROUTES
+ * RESELLER ROUTES
  */
 
-// gets / reads all customer
-router.get('/customer', getCustomers);
+// gets / reads all resellers
+router.get('/reseller', getResellers);
 
-// gets / reads a single customer
-router.get('/customer/:resellerId', getOneCustomer);
+// gets / reads a single reseller
+router.get('/reseller/:resellerId', getOneReseller);
 
-// updates a customer
+// updates a reseller
 router.put(
-  '/customer/:id',
+  '/reseller/:id',
   body('name').isString(),
   body('email').isString(),
   handleInputErrors,
-  updateCustomer
+  updateReseller
 );
 
-// creates a customer
+// creates a reseller
 router.post(
-  '/customer',
+  '/reseller',
   body('name').isString(),
+  body('email').isString(),
+  body('backerId').isString(),
+  body('resellerId').isString(),
+  body('pledgeAmount').isString(),
+  body('backerNumber').isInt(),
   handleInputErrors,
-  createCustomer
+  createReseller
 );
 
-// deletes a customer
-router.delete('/customer/:id', deleteCustomer);
+// deletes a reseller
+router.delete('/reseller/:id', deleteReseller);
 
 router.use((err, req, res, next) => {
   console.log(err);

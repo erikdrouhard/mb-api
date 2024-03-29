@@ -2,7 +2,7 @@ import express from 'express';
 import router from './router';
 import morgan from 'morgan';
 import { protect } from './modules/auth';
-import { createNewUser, signInUser } from './handlers/dbUser';
+import { createNewUser, signInUser } from './handlers/user';
 
 const app = express();
 

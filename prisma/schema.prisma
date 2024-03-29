@@ -13,19 +13,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model DbUser {
+model User {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   username  String   @unique
   password  String
 }
 
-model Customer {
+model Reseller {
   id              String   @id @default(uuid())
   createdAt       DateTime @default(now())
+  backerId        String   @unique
   licenseDuration Int      @default(2) // 2 years
   name            String
   email           String   @unique
   resellerId      String   @unique
-  pledgeAmount    String? //optional
+
+  pledgeAmount String? //optional
+  backerNumber Int? //optional
 }
