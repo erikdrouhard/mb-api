@@ -6,6 +6,7 @@ import {
   createCustomer,
   getOneCustomer,
   deleteCustomer,
+  updateCustomer,
 } from './handlers/customer';
 
 const router = Router();
@@ -24,8 +25,9 @@ router.get('/customer/:resellerId', getOneCustomer);
 router.put(
   '/customer/:id',
   body('name').isString(),
+  body('email').isString(),
   handleInputErrors,
-  (req, res) => {}
+  updateCustomer
 );
 
 // creates a customer
