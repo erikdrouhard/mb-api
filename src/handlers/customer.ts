@@ -57,6 +57,7 @@ export async function updateCustomer(req, res) {
       },
       data: {
         name: req.body.name,
+        email: req.body.email,
       },
     });
 

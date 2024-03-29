@@ -37,7 +37,7 @@ router.post(
 );
 
 // deletes a customer
-router.delete('/customer:id', deleteCustomer);
+router.delete('/customer/:id', deleteCustomer);
 
 router.use((err, req, res, next) => {
   console.log(err);
