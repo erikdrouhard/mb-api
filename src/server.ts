@@ -22,7 +22,7 @@ app.use('/api', protect, router);
 app.post('/user', createNewUser);
 
 // sign in user
-// app.post('/signin', signInUser);
+app.post('/signin', signInUser);
 
 app.use((err, req, res, next) => {
   if (err.type === 'auth') {

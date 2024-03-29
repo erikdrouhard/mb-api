@@ -31,14 +31,6 @@ export async function getOneReseller(req, res) {
 }
 
 // Create a reseller
-// backerId        String   @unique
-// licenseDuration String   @default("2")
-// name            String
-// email           String   @unique
-// resellerId      String   @unique
-
-// pledgeAmount String? //optional
-// backerNumber String? //optional
 export async function createReseller(req, res, next) {
   try {
     const reseller = await prisma.reseller.create({
