@@ -23,12 +23,13 @@ model User {
 model Reseller {
   id              String   @id @default(uuid())
   createdAt       DateTime @default(now())
-  backerId        String   @unique
   licenseDuration Int      @default(2) // 2 years
-  name            String
-  email           String   @unique
   resellerId      String   @unique
 
-  pledgeAmount String? //optional
-  backerNumber Int? //optional
+  //Optional
+  name         String?
+  email        String? @unique
+  backerId     String? @unique
+  pledgeAmount String?
+  backerNumber Int?    @unique
 }
