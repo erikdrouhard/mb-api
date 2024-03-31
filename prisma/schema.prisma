@@ -24,12 +24,12 @@ model Reseller {
   id              String   @id @default(uuid())
   createdAt       DateTime @default(now())
   licenseDuration Int      @default(2) // 2 years
-  resellerId      String   @unique
+  resellerId      String
 
   //Optional
   name         String?
-  email        String? @unique
-  backerId     String? @unique
+  email        String?
+  backerId     String?
   pledgeAmount String?
-  backerNumber Int?    @unique
+  backerNumber String?
 }
