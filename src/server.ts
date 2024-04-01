@@ -16,13 +16,14 @@ app.get('/', (req, res) => {
 });
 
 // middleware for protecting routes. Need JWT to access routes
-app.use('/api', protect, router);
+// app.use('/api', protect, router);
+app.use('/api', router);
 
 // create new user
-app.post('/user', createNewUser);
+// app.post('/user', createNewUser);
 
 // sign in user
-app.post('/signin', signInUser);
+// app.post('/signin', signInUser);
 
 app.use((err, req, res, next) => {
   if (err.type === 'auth') {
