@@ -1,19 +1,23 @@
 import express from 'express';
 import router from './router';
 import morgan from 'morgan';
+import cors from 'cors';
 import { protect } from './modules/auth';
 import { createNewUser, signInUser } from './handlers/user';
 
 const app = express();
 
 app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // for parsing application/json
+app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 app.get('/', (req, res) => {
   res.status(200);
   res.json({ message: 'Modi server online' });
 });
+
+// For development only - allows requests from localhost:3000
+app.use(cors({ origin: 'http://localhost:3000' }));
 
 // middleware for protecting routes. Need JWT to access routes
 // app.use('/api', protect, router);
