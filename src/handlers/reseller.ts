@@ -9,7 +9,10 @@ export async function getResellers(req, res) {
   } catch (e) {
     console.log(e);
     res.status(500);
-    res.json({ message: 'Oops...something went wrong' });
+    res.json({
+      message: 'Oops...something went wrong',
+      error: e,
+    });
   }
 }
 
