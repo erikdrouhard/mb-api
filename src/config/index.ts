@@ -1,17 +1,27 @@
-import merge from 'lodash/merge';
+import merge from 'lodash.merge';
+import localConfig from './local';
+import prodConfig from './prod';
+import testingConfig from './testing';
 
-// make sure that the NODE_ENV is set
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 const stage = process.env.STAGE || 'local';
 
-let envConfig;
+// Fail fast if required env vars are missing
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is required');
+}
+
+let envConfig = {};
 
 if (stage === 'production') {
-  envConfig = require('./prod').default; // need .default for es6 modules interop
+  envConfig = prodConfig;
 } else if (stage === 'testing') {
-  envConfig = require('./testing').default;
+  envConfig = testingConfig;
 } else {
-  envConfig = require('./local').default;
+  envConfig = localConfig;
 }
 
 export default merge(

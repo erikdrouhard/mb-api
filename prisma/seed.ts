@@ -13,6 +13,12 @@ interface CsvRow {
   resellerId: string;
 }
 
+function parseIntOrNull(value: string | undefined): number | null {
+  if (!value) return null;
+  const parsed = parseInt(value, 10);
+  return isNaN(parsed) ? null : parsed;
+}
+
 async function main() {
   const file = fs.createReadStream('prisma/modi-boxi-commercial-resellers.csv');
   const rows: CsvRow[] = [];
@@ -28,7 +34,7 @@ async function main() {
       for (const row of rows) {
         await prisma.reseller.create({
           data: {
-            backerNumber: row.backerNumber,
+            backerNumber: parseIntOrNull(row.backerNumber),
             backerId: row.backerId,
             name: row.name,
             email: row.email,
@@ -40,8 +46,9 @@ async function main() {
       console.log('CSV file successfully processed');
       await prisma.$disconnect();
     },
-    error: function (err) {
+    error: async function (err) {
       console.error(err);
+      await prisma.$disconnect();
       process.exit(1);
     },
   });

@@ -1,39 +1,62 @@
+import { Request, Response, NextFunction } from 'express';
 import prisma from '../db';
 import { createJWT, comparePasswords, hashPassword } from '../modules/auth';
 
-//database queries are async
-export const createNewUser = async (req, res, next) => {
+export const createNewUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      res.status(400).json({ message: 'Username and password are required' });
+      return;
+    }
+
     const user = await prisma.user.create({
       data: {
-        username: req.body.username,
-        password: await hashPassword(req.body.password),
+        username,
+        password: await hashPassword(password),
       },
     });
+
     const token = createJWT(user);
-    res.json({ token });
-  } catch (e) {
-    e.type = 'input';
+    res.status(201).json({ token });
+  } catch (e: any) {
+    if (e.code === 'P2002') {
+      res.status(409).json({ message: 'Username already exists' });
+      return;
+    }
     next(e);
   }
 };
 
-export const signInUser = async (req, res) => {
-  const user = await prisma.user.findUnique({
-    where: {
-      username: req.body.username,
-    },
-  });
+export const signInUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { username, password } = req.body;
 
-  // compares the password from the request to the hashed password in the database
-  const isValid = await comparePasswords(req.body.password, user.password);
+    if (!username || !password) {
+      res.status(400).json({ message: 'Username and password are required' });
+      return;
+    }
 
-  if (!isValid) {
-    res.status(401);
-    res.json({ message: 'not authorized' });
-    return;
+    const user = await prisma.user.findUnique({
+      where: { username },
+    });
+
+    if (!user) {
+      res.status(401).json({ message: 'Invalid username or password' });
+      return;
+    }
+
+    const isValid = await comparePasswords(password, user.password);
+
+    if (!isValid) {
+      res.status(401).json({ message: 'Invalid username or password' });
+      return;
+    }
+
+    const token = createJWT(user);
+    res.json({ token });
+  } catch (e) {
+    next(e);
   }
-
-  const token = createJWT(user);
-  res.json({ token });
 };

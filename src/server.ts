@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import router from './router';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -8,38 +8,49 @@ import { createNewUser, signInUser } from './handlers/user';
 const app = express();
 
 app.use(morgan('dev'));
-app.use(express.json()); // for parsing application/json
-app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:3000' }));
 
-app.get('/', (req, res) => {
-  res.status(200);
-  res.json({ message: 'Modi server online' });
+app.get('/', (req: Request, res: Response) => {
+  res.status(200).json({ message: 'Modi server online' });
 });
 
-// For development only - allows requests from localhost:3000
-app.use(cors({ origin: 'http://localhost:3000' }));
+// Public auth route
+app.post('/signin', signInUser);
 
-// middleware for protecting routes. Need JWT to access routes
-// app.use('/api', protect, router);
-app.use('/api', router);
+// Protected routes
+app.use('/api', protect, router);
 
-// create new user
-// app.post('/user', createNewUser);
+// Admin-created accounts: only authenticated users can create new users
+app.post('/user', protect, createNewUser);
 
-// sign in user
-// app.post('/signin', signInUser);
+// Global error handler
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error(err);
 
-app.use((err, req, res, next) => {
-  if (err.type === 'auth') {
-    res.status(401);
-    res.json({ message: 'unauthorized' });
-  } else if (err.type === 'input') {
-    res.status(400);
-    res.json({ message: 'bad input' });
-  } else {
-    res.status(500);
-    res.json({ message: 'Oops...something went wrong' });
+  // Prisma known errors
+  if (err.code === 'P2025') {
+    res.status(404).json({ message: 'Record not found' });
+    return;
   }
+  if (err.code === 'P2002') {
+    res.status(409).json({ message: 'A record with that value already exists' });
+    return;
+  }
+
+  // Application errors
+  if (err.type === 'auth') {
+    res.status(401).json({ message: 'Unauthorized' });
+    return;
+  }
+  if (err.type === 'input') {
+    res.status(400).json({ message: 'Invalid input' });
+    return;
+  }
+
+  // Default
+  res.status(500).json({ message: 'Internal server error' });
 });
 
 export default app;

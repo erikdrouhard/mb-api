@@ -1,40 +1,35 @@
+import { Request, Response, NextFunction } from 'express';
 import prisma from '../db';
 
-// Gets all resellers
-export async function getResellers(req, res) {
+export async function getResellers(req: Request, res: Response, next: NextFunction) {
   try {
-    const reseller = await prisma.reseller.findMany();
-
-    res.json({ data: reseller });
+    const resellers = await prisma.reseller.findMany();
+    res.json({ data: resellers });
   } catch (e) {
-    console.log(e);
-    res.status(500);
-    res.json({
-      message: 'Oops...something went wrong',
-      error: e,
-    });
+    next(e);
   }
 }
 
-// Get one reseller
-export async function getOneReseller(req, res) {
+export async function getOneReseller(req: Request, res: Response, next: NextFunction) {
   try {
     const reseller = await prisma.reseller.findFirst({
       where: {
-        id: req.params.id,
-        resellerId: req.params.resellerId,
+        resellerId: req.params.resellerId as string,
       },
     });
 
+    if (!reseller) {
+      res.status(404).json({ message: 'Reseller not found' });
+      return;
+    }
+
     res.json({ data: reseller });
   } catch (e) {
-    res.status(500);
-    res.json({ message: 'Reseller not found.' });
+    next(e);
   }
 }
 
-// Create a reseller
-export async function createReseller(req, res, next) {
+export async function createReseller(req: Request, res: Response, next: NextFunction) {
   try {
     const reseller = await prisma.reseller.create({
       data: {
@@ -47,18 +42,17 @@ export async function createReseller(req, res, next) {
       },
     });
 
-    res.json({ data: reseller });
+    res.status(201).json({ data: reseller });
   } catch (e) {
     next(e);
   }
 }
 
-// Update a reseller
-export async function updateReseller(req, res) {
+export async function updateReseller(req: Request, res: Response, next: NextFunction) {
   try {
     const updated = await prisma.reseller.update({
       where: {
-        id: req.params.id,
+        id: req.params.id as string,
       },
       data: {
         name: req.body.name,
@@ -69,23 +63,20 @@ export async function updateReseller(req, res) {
 
     res.json({ data: updated });
   } catch (e) {
-    res.status(500);
-    res.json({ message: 'Oops... something went wrong there.' });
+    next(e);
   }
 }
 
-// Delete a reseller
-export async function deleteReseller(req, res) {
+export async function deleteReseller(req: Request, res: Response, next: NextFunction) {
   try {
     const deleted = await prisma.reseller.delete({
       where: {
-        id: req.params.id,
+        id: req.params.id as string,
       },
     });
 
     res.json({ data: deleted });
   } catch (e) {
-    res.status(500);
-    res.json({ message: 'Oops... something went wrong.' });
+    next(e);
   }
 }
