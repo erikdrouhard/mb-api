@@ -1,16 +1,18 @@
 import express, { Request, Response, NextFunction } from 'express';
 import router from './router';
-import morgan from 'morgan';
 import cors from 'cors';
 import helmet from 'helmet';
+import pinoHttp from 'pino-http';
 import rateLimit from 'express-rate-limit';
 import { protect } from './modules/auth';
 import { createNewUser, signInUser } from './handlers/user';
+import { AppError } from './modules/errors';
+import logger from './modules/logger';
 
 const app = express();
 
 app.use(helmet());
-app.use(morgan('dev'));
+app.use(pinoHttp({ logger }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:3000' }));
@@ -43,30 +45,31 @@ app.use('/api', protect, router);
 app.post('/user', protect, authLimiter, createNewUser);
 
 // Global error handler
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err);
+app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
+  // Application errors (typed)
+  if (err instanceof AppError) {
+    logger.warn({ statusCode: err.statusCode, message: err.message }, err.message);
+    res.status(err.statusCode).json({ message: err.message });
+    return;
+  }
 
   // Prisma known errors
-  if (err.code === 'P2025') {
-    res.status(404).json({ message: 'Record not found' });
-    return;
-  }
-  if (err.code === 'P2002') {
-    res.status(409).json({ message: 'A record with that value already exists' });
-    return;
-  }
-
-  // Application errors
-  if (err.type === 'auth') {
-    res.status(401).json({ message: 'Unauthorized' });
-    return;
-  }
-  if (err.type === 'input') {
-    res.status(400).json({ message: 'Invalid input' });
-    return;
+  if (err && typeof err === 'object' && 'code' in err) {
+    const prismaErr = err as { code: string };
+    if (prismaErr.code === 'P2025') {
+      logger.warn('Prisma record not found');
+      res.status(404).json({ message: 'Record not found' });
+      return;
+    }
+    if (prismaErr.code === 'P2002') {
+      logger.warn('Prisma unique constraint violation');
+      res.status(409).json({ message: 'A record with that value already exists' });
+      return;
+    }
   }
 
-  // Default
+  // Unexpected errors
+  logger.error(err, 'Unhandled error');
   res.status(500).json({ message: 'Internal server error' });
 });
 

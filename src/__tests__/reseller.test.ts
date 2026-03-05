@@ -118,6 +118,22 @@ describe('POST /api/reseller', () => {
     expect(res.body.errors).toBeDefined();
   });
 
+  it('returns 400 with invalid email', async () => {
+    const res = await request(app)
+      .post('/api/reseller')
+      .set('Authorization', auth)
+      .send({
+        name: 'Test',
+        email: 'not-an-email',
+        backerId: 'B001',
+        resellerId: 'R001',
+        pledgeAmount: '100',
+        backerNumber: 42,
+      });
+
+    expect(res.status).toBe(400);
+  });
+
   it('returns 400 when backerNumber is not an integer', async () => {
     const res = await request(app)
       .post('/api/reseller')

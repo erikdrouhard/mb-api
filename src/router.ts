@@ -21,19 +21,19 @@ router.get('/reseller/:resellerId', getOneReseller);
 
 router.put(
   '/reseller/:id',
-  body('name').isString(),
-  body('email').isString(),
+  body('name').isString().trim().notEmpty().withMessage('Name is required'),
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
   handleInputErrors,
   updateReseller
 );
 
 router.post(
   '/reseller',
-  body('name').isString(),
-  body('email').isString(),
-  body('backerId').isString(),
-  body('resellerId').isString(),
-  body('pledgeAmount').isString(),
+  body('name').isString().trim().notEmpty().withMessage('Name is required'),
+  body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
+  body('backerId').isString().trim().notEmpty(),
+  body('resellerId').isString().trim().notEmpty(),
+  body('pledgeAmount').isString().trim().notEmpty(),
   body('backerNumber').isInt(),
   handleInputErrors,
   createReseller

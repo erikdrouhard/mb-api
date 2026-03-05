@@ -64,6 +64,16 @@ describe('POST /user (create user)', () => {
     expect(res.body.message).toBe('Username and password are required');
   });
 
+  it('returns 400 when password is too short', async () => {
+    const res = await request(app)
+      .post('/user')
+      .set('Authorization', auth)
+      .send({ username: 'newuser', password: 'short' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/at least 8 characters/);
+  });
+
   it('creates a user and returns a token', async () => {
     prisma.user.create.mockResolvedValue({
       id: 'new-uuid',
@@ -74,7 +84,7 @@ describe('POST /user (create user)', () => {
     const res = await request(app)
       .post('/user')
       .set('Authorization', auth)
-      .send({ username: 'newuser', password: 'pass123' });
+      .send({ username: 'newuser', password: 'password123' });
 
     expect(res.status).toBe(201);
     expect(res.body.token).toBeDefined();
@@ -89,7 +99,7 @@ describe('POST /user (create user)', () => {
     const res = await request(app)
       .post('/user')
       .set('Authorization', auth)
-      .send({ username: 'existing', password: 'pass123' });
+      .send({ username: 'existing', password: 'password123' });
 
     expect(res.status).toBe(409);
     expect(res.body.message).toBe('Username already exists');
