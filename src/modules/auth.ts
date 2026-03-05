@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { Request, Response, NextFunction } from 'express';
 import config from '../config';
@@ -12,10 +12,11 @@ declare global {
 }
 
 export function createJWT(user: { id: string; username: string }): string {
+  const options: SignOptions = { expiresIn: config.secrets.jwtExp as SignOptions['expiresIn'] };
   return jwt.sign(
     { id: user.id, username: user.username },
     config.secrets.jwt,
-    { expiresIn: config.secrets.jwtExp }
+    options
   );
 }
 

@@ -43,6 +43,14 @@ describe('server', () => {
     });
   });
 
+  describe('GET /health', () => {
+    it('returns health check response', async () => {
+      const res = await request(app).get('/health');
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe('ok');
+    });
+  });
+
   describe('protected routes', () => {
     it('returns 401 on /api routes without token', async () => {
       const res = await request(app).get('/api/reseller');
@@ -75,6 +83,50 @@ describe('server', () => {
         .get('/api/reseller')
         .set('Authorization', `Bearer ${token}`);
       expect(res.status).toBe(200);
+    });
+  });
+
+  describe('global error handler', () => {
+    const token = createJWT({ id: '123', username: 'testuser' });
+
+    it('handles Prisma P2025 (not found) errors', async () => {
+      const prisma = require('../db').default;
+      const error = new Error('Not found');
+      (error as any).code = 'P2025';
+      prisma.reseller.findMany.mockRejectedValue(error);
+
+      const res = await request(app)
+        .get('/api/reseller')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(404);
+      expect(res.body.message).toBe('Record not found');
+    });
+
+    it('handles Prisma P2002 (unique constraint) errors', async () => {
+      const prisma = require('../db').default;
+      const error = new Error('Unique');
+      (error as any).code = 'P2002';
+      prisma.reseller.findMany.mockRejectedValue(error);
+
+      const res = await request(app)
+        .get('/api/reseller')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(409);
+      expect(res.body.message).toBe('A record with that value already exists');
+    });
+
+    it('handles unknown errors as 500', async () => {
+      const prisma = require('../db').default;
+      prisma.reseller.findMany.mockRejectedValue(new Error('Unexpected'));
+
+      const res = await request(app)
+        .get('/api/reseller')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(500);
+      expect(res.body.message).toBe('Internal server error');
     });
   });
 });

@@ -32,7 +32,7 @@ export default merge(
     secrets: {
       jwt: process.env.JWT_SECRET,
       dbUrl: process.env.DATABASE_URL,
-      jwtExp: '100d',
+      jwtExp: '1h',
     },
   },
   envConfig
